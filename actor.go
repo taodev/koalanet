@@ -3,12 +3,18 @@ package koalanet
 import (
 	"fmt"
 	"log"
-	"os"
 )
 
+type IActorMethod interface {
+	Process() error
+}
+
+type ActorMethodCallback func(args interface{}, reply interface{}) error
+
 type Actor struct {
-	ctx    *context
-	handle uint32
+	ctx       *context
+	handle    uint32
+	callbacks map[string]ActorMethodCallback
 }
 
 func (a *Actor) setContext(ctx *context) {
@@ -23,13 +29,26 @@ func (a *Actor) getHandle() uint32 {
 	return a.handle
 }
 
-func (a *Actor) init(ctx *context, handle uint32) {
-	a.ctx = ctx
-	a.handle = handle
+func (a *Actor) init() {
+	a.callbacks = make(map[string]ActorMethodCallback)
 }
 
 func (a *Actor) OnMessage(funcName string, args interface{}, reply interface{}) error {
-	return nil
+	callback, ok := a.callbacks[funcName]
+	if !ok {
+		return fmt.Errorf("context:%d not function(%s).", funcName)
+	}
+
+	return callback(args, reply)
+}
+
+func (a *Actor) RegMethod(name string, callback ActorMethodCallback) {
+	_, ok := a.callbacks[name]
+	if ok {
+		return
+	}
+
+	a.callbacks[name] = callback
 }
 
 type ActorNewFunc func() IActor
@@ -45,22 +64,14 @@ var (
 func RegActor(name string, fptr ActorNewFunc) {
 	_, ok := actorFactory.actors[name]
 	if ok {
-		panic(fmt.Sprintf("RegActor %s 已存在.", name))
+		// panic(fmt.Sprintf("RegActor %s 已存在.", name))
+		// log.Printf("Warning RegActor %s 已存在.", name)
 	}
 
 	actorFactory.actors[name] = fptr
 }
 
 func NewActor(actorName string, args interface{}) uint32 {
-	defer func() {
-		if err := recover(); err != nil {
-			errorInfo := fmt.Sprint(err)
-			log.Printf("NewActor: panic:%s", errorInfo)
-			os.Exit(1)
-			return
-		}
-	}()
-
 	factor, ok := actorFactory.actors[actorName]
 	if !ok {
 		log.Printf("can't find.")

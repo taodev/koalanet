@@ -16,13 +16,6 @@ var (
 	contextWG sync.WaitGroup
 )
 
-type IActor interface {
-	setContext(ctx *context)
-	setHandle(h uint32)
-	getHandle() uint32
-	OnMessage(funcName string, args interface{}, reply interface{}) error
-}
-
 type stackInfo struct {
 }
 
@@ -40,8 +33,7 @@ func (ctx *context) init() {
 }
 
 func (ctx *context) send(src *context, fname string, args interface{}) error {
-	msg := contextMessageGet()
-	msg.op = ctx_sysmsg_normal
+	msg := &contextMessage{src, fname, args, nil, nil, ctx_sysmsg_normal}
 
 	ctx.messageChan <- msg
 
@@ -53,12 +45,7 @@ func (ctx *context) setTimeout(timeout int64) {
 }
 
 func (ctx *context) call(src *context, fname string, args interface{}, reply interface{}) error {
-	msg := contextMessageGet()
-	msg.src = src
-	msg.fname = fname
-	msg.args = args
-	msg.reply = reply
-	msg.replyChan = make(chan error, 1)
+	msg := &contextMessage{src, fname, args, reply, make(chan error, 1), ctx_sysmsg_normal}
 
 	// 发送到消息队列
 	ctx.messageChan <- msg
