@@ -33,23 +33,17 @@ type context struct {
 	messageChan chan *contextMessage
 	timeout     int64
 	stackInfo   *stackInfo
+	wg          sync.WaitGroup
 }
 
-func (ctx *context) sendMessage(message *contextMessage) {
-	ctx.messageChan <- message
+func (ctx *context) init() {
 }
 
 func (ctx *context) send(src *context, fname string, args interface{}) error {
-	// msg := contextMessageGet()
-	msg := &contextMessage{src, fname, args, nil, nil, ctx_sysmsg_normal}
+	msg := contextMessageGet()
+	msg.op = ctx_sysmsg_normal
 
 	ctx.messageChan <- msg
-
-	//	select {
-	//	case ctx.messageChan <- msg:
-	//	case <-time.After(contextDefaultTimeout):
-	//		return fmt.Errorf("time out")
-	//	}
 
 	return nil
 }
@@ -77,6 +71,8 @@ func (ctx *context) call(src *context, fname string, args interface{}, reply int
 			}
 		case <-time.After(time.Second * time.Duration(ctx.timeout)):
 			{
+				close(msg.replyChan)
+				msg.replyChan = nil
 				// return fmt.Errorf("time out context current handle function:%s", ctx.Handle_func)
 				return fmt.Errorf("time out context current handle function")
 			}
@@ -102,15 +98,18 @@ func (ctx *context) kill(force bool) error {
 func context_thread(ctx *context) {
 	countMsg := 0
 	contextWG.Add(1)
+	ctx.wg.Add(1)
+
+	maxMQCount := 0
 
 	defer func() {
-		//		if err := recover(); err != nil {
-		//			log.Println(err)
-		//		}
+		if err := recover(); err != nil {
+			log.Println(err)
+		}
 
-		//		log.Printf("context_thread[%d]: destroy(%d)", ctx.handle, countMsg)
+		log.Printf("context_thread[%d]: destroy(%d:%d)", ctx.handle, maxMQCount, countMsg)
 		contextWG.Done()
-		// close(ctx.messageChan)
+		ctx.wg.Done()
 	}()
 
 	for {
@@ -120,8 +119,12 @@ func context_thread(ctx *context) {
 		}
 
 		countMsg++
+		if maxMQCount < len(ctx.messageChan) {
+			maxMQCount = len(ctx.messageChan) + 1
+		}
 
 		if msg.op == ctx_sysmsg_quit {
+			close(ctx.messageChan)
 			break
 		}
 

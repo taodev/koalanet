@@ -36,6 +36,8 @@ func Test_context_call(t *testing.T) {
 	ctx.actor = actor
 	ctx.messageChan = make(chan *contextMessage, 2048)
 
+	ctx.init()
+
 	go context_thread(ctx)
 
 	ctx.call(nil, "TestMethod", 32, nil)
@@ -54,15 +56,17 @@ func Test_context_call(t *testing.T) {
 		t.Fail()
 	}
 
-	contextWG.Wait()
+	ctx.wg.Wait()
 }
 
-func Benchmark_context(b *testing.B) {
+func Benchmark_context_send(b *testing.B) {
 	ctx := &context{}
 	ctx.handle = 0
 	ctx.name = "TestContext"
 	ctx.actor = &TestActor{}
 	ctx.messageChan = make(chan *contextMessage, 2048)
+
+	ctx.init()
 
 	go context_thread(ctx)
 
@@ -70,7 +74,27 @@ func Benchmark_context(b *testing.B) {
 		ctx.send(nil, "TestMethod", 32)
 	}
 
-	ctx.kill(true)
+	ctx.kill(false)
 
-	contextWG.Wait()
+	ctx.wg.Wait()
+}
+
+func Benchmark_context_call(b *testing.B) {
+	ctx := &context{}
+	ctx.handle = 0
+	ctx.name = "TestContext"
+	ctx.actor = &TestActor{}
+	ctx.messageChan = make(chan *contextMessage, 2048)
+
+	ctx.init()
+
+	go context_thread(ctx)
+
+	for i := 0; i < b.N; i++ {
+		ctx.call(nil, "TestMethod", 32, nil)
+	}
+
+	ctx.kill(false)
+
+	ctx.wg.Wait()
 }

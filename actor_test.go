@@ -31,5 +31,6 @@ func Test_actor_send(t *testing.T) {
 	ctx.send(nil, "TestFunc", nil)
 	ctx.kill(false)
 
-	contextWG.Wait()
+	// contextWG.Wait()
+	ctx.wg.Wait()
 }

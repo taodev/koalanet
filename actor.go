@@ -73,6 +73,8 @@ func NewActor(actorName string, args interface{}) uint32 {
 		messageChan: make(chan *contextMessage, 2048),
 	}
 
+	ctx.init()
+
 	handle := register(ctx)
 	ctx.handle = handle
 	actor.setContext(ctx)
