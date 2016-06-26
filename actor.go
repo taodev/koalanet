@@ -29,7 +29,7 @@ func (a *Actor) getHandle() uint32 {
 	return a.handle
 }
 
-func (a *Actor) init() {
+func (a *Actor) InitActor() {
 	a.callbacks = make(map[string]ActorMethodCallback)
 }
 

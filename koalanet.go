@@ -14,7 +14,6 @@ var (
 )
 
 type IActor interface {
-	init()
 	setContext(ctx *context)
 	setHandle(h uint32)
 	getHandle() uint32

@@ -53,7 +53,7 @@ func (tkm *TestKoalanetMain) SendTest(args interface{}, reply interface{}) error
 func Benchmark_koalanet_send(b *testing.B) {
 	RegActor("TestKoalanetMain", func() IActor {
 		actor := &TestKoalanetMain{}
-		actor.init()
+		actor.InitActor()
 		actor.RegMethod("Init", actor.Init)
 		actor.RegMethod("SendTest", actor.SendTest)
 		return actor
