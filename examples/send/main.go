@@ -8,6 +8,27 @@ import (
 	"github.com/taodev/koalanet"
 )
 
+type ActorA struct {
+	koalanet.Actor
+}
+
+func (act *ActorA) Init() error {
+	log.Printf("ActorA::Init")
+	koalanet.RegName(act.GetHandle(), "act1")
+
+	return nil
+}
+
+func (act *ActorA) MethodA(reply *int) error {
+	*reply = 32
+	return nil
+}
+
+func (act *ActorA) MethodB() error {
+	log.Printf("Actor::MethodB")
+	return nil
+}
+
 type MainActor struct {
 	koalanet.Actor
 }
@@ -15,11 +36,24 @@ type MainActor struct {
 func (act *MainActor) Init() error {
 	log.Printf("MainActor::Init")
 
-	wrap := MainActorWrap{act.GetHandle()}
-	wrap.MethodA(false, ArgsSend{200, "Hello"})
+	hAct1 := koalanet.NewActor("ActorA", nil)
 
-	koalanet.KillActor(act.GetHandle(), false)
-	koalanet.Exit()
+	act1 := &ActorAWrap{}
+	act1.Handle = hAct1
+
+	// sync call
+	reply := 0
+	act1.MethodA(true, &reply)
+	log.Printf("Call ActorA::MethodA %d", reply)
+
+	// asyn send
+	act1.MethodB(false)
+
+	// koalanet.KillActor(hAct1, false)
+
+	// koalanet.KillActor(act.GetHandle(), false)
+
+	// koalanet.Exit()
 
 	return nil
 }
