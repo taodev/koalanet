@@ -25,7 +25,7 @@ func (a *Actor) setHandle(h uint32) {
 	a.handle = h
 }
 
-func (a *Actor) getHandle() uint32 {
+func (a *Actor) GetHandle() uint32 {
 	return a.handle
 }
 

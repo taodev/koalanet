@@ -1,3 +1,5 @@
+//go:generate kactorgen actor
+
 package main
 
 import (

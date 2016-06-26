@@ -16,7 +16,7 @@ var (
 type IActor interface {
 	setContext(ctx *context)
 	setHandle(h uint32)
-	getHandle() uint32
+	GetHandle() uint32
 	OnMessage(funcName string, args interface{}, reply interface{}) error
 }
 
@@ -107,6 +107,10 @@ func Run(mainActor string, maxThread int, debugEnable bool, debugPort string) {
 
 func Exit() {
 	quit_chan <- 1
+}
+
+func WaitAllQuit() {
+	contextWG.Wait()
 }
 
 func WaitActorQuit(handle uint32) error {

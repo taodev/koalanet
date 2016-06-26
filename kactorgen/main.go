@@ -16,6 +16,7 @@ var (
 	actor_namespace string = "koalanet.Actor"
 	pkg_name        string = ""
 	actor_list      map[string]*AstStruct
+	dir_path        string = "."
 )
 
 type AstMethod struct {
@@ -213,7 +214,7 @@ func dirFilter(f os.FileInfo) bool { return nameFilter(f.Name()) }
 func parseDir() {
 	fset := token.NewFileSet()
 
-	pkgs, err := parser.ParseDir(fset, "./", dirFilter, 0)
+	pkgs, err := parser.ParseDir(fset, dir_path, dirFilter, 0)
 	if err != nil {
 		return
 	}
@@ -347,13 +348,18 @@ func genImpl() string {
 
 	// fmt.Println(body)
 
-	ioutil.WriteFile("./actor_wrap.go", []byte(body), os.ModeAppend)
+	ioutil.WriteFile(dir_path+"/actor_wrap.go", []byte(body), os.ModeAppend)
 
 	return body
 }
 
 func main() {
 	actor_list = make(map[string]*AstStruct)
+
+	if len(os.Args) > 1 {
+		dir_path = os.Args[1]
+	}
+
 	parseDir()
 
 	genImpl()
