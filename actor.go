@@ -29,6 +29,10 @@ func (a *Actor) GetHandle() uint32 {
 	return a.handle
 }
 
+func (a *Actor) GetType() string {
+	return "Actor"
+}
+
 func (a *Actor) InitActor() {
 	a.callbacks = make(map[string]ActorMethodCallback)
 }
@@ -83,7 +87,7 @@ func NewActor(actorName string, args interface{}) uint32 {
 		actor:       actor,
 		messageChan: make(chan *contextMessage, 2048),
 	}
-
+	ctx.actorType = actor.GetType()
 	ctx.init()
 
 	handle := register(ctx)

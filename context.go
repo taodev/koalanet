@@ -5,6 +5,8 @@ import (
 	"log"
 	"sync"
 
+	"github.com/taodev/koalanet/toolbox"
+
 	"time"
 )
 
@@ -23,6 +25,7 @@ type context struct {
 	handle      uint32
 	name        string
 	actor       IActor
+	actorType   string
 	messageChan chan *contextMessage
 	timeout     int64
 	stackInfo   *stackInfo
@@ -105,6 +108,8 @@ func context_thread(ctx *context) {
 			break
 		}
 
+		startTime := time.Now()
+
 		countMsg++
 		if maxMQCount < len(ctx.messageChan) {
 			maxMQCount = len(ctx.messageChan) + 1
@@ -119,5 +124,8 @@ func context_thread(ctx *context) {
 		if msg.replyChan != nil {
 			msg.replyChan <- err
 		}
+
+		timeDur := time.Since(startTime)
+		toolbox.StatisticsMap.AddStatistics(ctx.actorType, msg.fname, timeDur)
 	}
 }

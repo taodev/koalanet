@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/taodev/koalanet"
+	"github.com/taodev/koalanet/toolbox"
 )
 
 var (
@@ -70,15 +71,15 @@ type BenchActor struct {
 }
 
 func (b *BenchActor) Init() error {
-	//	for i := 0; i < 1000; i++ {
-	//		hWriter := koalanet.NewActor("Writer", nil)
-	//		koalanet.Send(hWriter, "StartCall", nil)
-	//	}
-
-	for i := 0; i < 1000; i++ {
+	for i := 0; i < 100; i++ {
 		hWriter := koalanet.NewActor("Writer", nil)
-		koalanet.Send(hWriter, "StartSend", nil)
+		koalanet.Send(hWriter, "StartCall", nil)
 	}
+
+	//	for i := 0; i < 100; i++ {
+	//		hWriter := koalanet.NewActor("Writer", nil)
+	//		koalanet.Send(hWriter, "StartSend", nil)
+	//	}
 
 	return nil
 }
@@ -105,6 +106,8 @@ func main() {
 
 			lastCallTime = callTime
 			lastSendTime = sendTime
+
+			toolbox.StatisticsMap.PrintMap()
 		}
 	}()
 

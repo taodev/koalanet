@@ -75,6 +75,10 @@ type WriterImpl struct {
 	Writer
 }
 
+func (actor *WriterImpl) GetType() string {
+	return "Writer"
+}
+
 func (actor *WriterImpl) InitWrap(args interface{}, reply interface{}) error {
 	return actor.Init()
 }
@@ -91,6 +95,10 @@ type ReaderImpl struct {
 	Reader
 }
 
+func (actor *ReaderImpl) GetType() string {
+	return "Reader"
+}
+
 func (actor *ReaderImpl) InitWrap(args interface{}, reply interface{}) error {
 	return actor.Init()
 }
@@ -105,6 +113,10 @@ func (actor *ReaderImpl) MethodSendWrap(args interface{}, reply interface{}) err
 
 type BenchActorImpl struct {
 	BenchActor
+}
+
+func (actor *BenchActorImpl) GetType() string {
+	return "BenchActor"
 }
 
 func (actor *BenchActorImpl) InitWrap(args interface{}, reply interface{}) error {

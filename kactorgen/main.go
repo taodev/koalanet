@@ -236,6 +236,10 @@ var impl_struct_def string = `
 type %sImpl struct {
 	%s
 }
+
+func (actor *%sImpl) GetType() string {
+	return "%s"
+}
 `
 
 var impl_method_def string = `
@@ -318,7 +322,7 @@ func genImpl() string {
 	reg_code := ""
 
 	for _, actor := range actor_list {
-		body += fmt.Sprintf(impl_struct_def, actor.Name, actor.Name)
+		body += fmt.Sprintf(impl_struct_def, actor.Name, actor.Name, actor.Name, actor.Name)
 		reg_code += fmt.Sprintf(impl_reg_head, actor.Name, actor.Name)
 
 		for _, method := range actor.Methods {
