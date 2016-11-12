@@ -1,4 +1,4 @@
-package koalanet
+package knet
 
 import (
 	"errors"

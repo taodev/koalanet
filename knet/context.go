@@ -1,11 +1,11 @@
-package koalanet
+package knet
 
 import (
 	"fmt"
 	"log"
 	"sync"
 
-	"github.com/taodev/koalanet/toolbox"
+	"github.com/taodev/koalanet/knet/toolbox"
 
 	"time"
 )
